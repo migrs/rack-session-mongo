@@ -1,6 +1,5 @@
 require 'rack/session/abstract/id'
 require 'mongo'
-require 'tapp'
 
 module Rack
   module Session
