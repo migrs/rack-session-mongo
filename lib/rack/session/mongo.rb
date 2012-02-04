@@ -9,7 +9,7 @@ module Rack
       attr_reader :mutex, :pool
 
       DEFAULT_OPTIONS = Abstract::ID::DEFAULT_OPTIONS.merge \
-        :db_name => :sessions, :collection => :sessions
+        :db_name => :sessions, :collection => :sessions, :marshal_data => true
 
       def initialize(app, options={})
         options = {:db         => options } if options.is_a? ::Mongo::DB
@@ -69,12 +69,12 @@ module Rack
     private
       def _put(sid, session)
         @pool.update({ :sid => sid },
-           {"$set" => {:session  => [Marshal.dump(session)].pack('m*'), :updated_at => Time.now.utc}}, :upsert => true)
+           {"$set" => {:data  => _pack(session), :updated_at => Time.now.utc}}, :upsert => true)
       end
 
       def _get(sid)
         if doc = _exists?(sid)
-          Marshal.load(doc['session'].unpack('m*').first)
+          _unpack(doc['data'])
         end
       end
 
@@ -84,6 +84,16 @@ module Rack
 
       def _exists?(sid)
         @pool.find_one(:sid => sid)
+      end
+
+      def _pack(data)
+        return nil unless data
+        @default_options[:marshal_data] ? [Marshal.dump(data)].pack("m*") : data
+      end
+
+      def _unpack(packed)
+        return nil unless packed
+        @default_options[:marshal_data] ? Marshal.load(packed.unpack("m*").first) : packed
       end
     end
   end
