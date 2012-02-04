@@ -1,6 +1,6 @@
 module Rack
   module Session
-    module Mongo
+    class Mongo
       VERSION = "0.0.1"
     end
   end

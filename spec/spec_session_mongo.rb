@@ -1,6 +1,6 @@
 require 'thread'
 require 'rack/mock'
-require 'rack/session/mongo'
+require 'rack-session-mongo'
 require 'fileutils'
 
 describe Rack::Session::Mongo do
